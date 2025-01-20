@@ -5,6 +5,7 @@ MonoImporter:
   serializedVersion: 2
   defaultReferences:
   - iceCubeObject: {fileID: 919132149155446097, guid: d6040353523214c859a8612b02fbb87c, type: 3}
+  - outlineMaterial: {fileID: 2100000, guid: c85fa15aa5bed4a4fb617a16145df288, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
