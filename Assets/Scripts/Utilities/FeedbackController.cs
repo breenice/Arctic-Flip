@@ -3,6 +3,7 @@ using TMPro;
 public class FeedbackController : MonoBehaviour
 {
     public TextMeshProUGUI feedbackText;
+    public TextMeshProUGUI timeText;
 
     void Start()
     {
@@ -26,6 +27,13 @@ public class FeedbackController : MonoBehaviour
         if (feedbackText != null)
         {
             feedbackText.text = text;
+        }
+    }
+    public void SetTime(string text)
+    {
+        if (timeText != null)
+        {
+            timeText.text = text;
         }
     }
 }
