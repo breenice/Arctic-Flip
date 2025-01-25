@@ -425,6 +425,7 @@
 "Assets/Scripts/IceCube/IceCubeController.cs"
 "Assets/Scripts/IceCube/Outliner.cs"
 "Assets/Scripts/Platform/PlatformController.cs"
+"Assets/Scripts/Utilities/FeedbackController.cs"
 "Assets/TutorialInfo/Scripts/Readme.cs"
 -langversion:9.0
 /deterministic
