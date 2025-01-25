@@ -14,10 +14,18 @@ public class FeedbackController : MonoBehaviour
 
     void Update()
     {
+        // if (feedbackText != null)
+        // {
+        //     // feedbackText.text = "Mouse Position: " + Input.mousePosition.ToString();
+
+        // }
+    }
+
+    public void SetFeedbackText(string text)
+    {
         if (feedbackText != null)
         {
-            feedbackText.text = "Mouse Position: " + Input.mousePosition.ToString();
-
+            feedbackText.text = text;
         }
     }
 }

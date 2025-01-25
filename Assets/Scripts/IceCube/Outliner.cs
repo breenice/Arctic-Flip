@@ -26,6 +26,7 @@ public class Outliner : MonoBehaviour
     private Transform highlight;
     private Transform selection;
     private RaycastHit raycastHit;
+   public FeedbackController feedbackController;
 
     void Update()
     {
@@ -36,11 +37,12 @@ public class Outliner : MonoBehaviour
             highlight = null;
         }
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (!EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out raycastHit)) //Make sure you have EventSystem in the hierarchy before using EventSystem
+        if (!EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out raycastHit)) // NEED EVENT SYSTEM
         {
             highlight = raycastHit.transform;
-            if (highlight.CompareTag("Selectable_ice") && highlight != selection)
+            if ((highlight.name == "ice") && (highlight != selection))
             {
+                feedbackController.SetFeedbackText("Highlighted: " + highlight.tag);
                 if (highlight.gameObject.GetComponent<Outline>() != null)
                 {
                     highlight.gameObject.GetComponent<Outline>().enabled = true;
