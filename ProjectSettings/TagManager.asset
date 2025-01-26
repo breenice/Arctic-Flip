@@ -7,6 +7,7 @@ TagManager:
   - Selectable_ice
   - 1/1
   - 1/2
+  - slot
   layers:
   - Default
   - TransparentFX

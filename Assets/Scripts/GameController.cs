@@ -25,18 +25,26 @@ public class MainMenuController : MonoBehaviour
     }
     public void Update()
     {
+        // textController.SetFeedbackText("Timer: " + timeLeft.ToString("0"));
         if (challengeActive)
         {
             // clock
-            if (timeLeft > 0)
+            if (timeLeft > 1)
             {
                 timeLeft -= Time.deltaTime;
-                textController.SetTime(timeLeft.ToString("0"));
+                int minutes = Mathf.FloorToInt(timeLeft / 60);
+                int seconds = Mathf.FloorToInt(timeLeft % 60);
+                string timeFormatted = $"{minutes:00}:{seconds:00}";
+                textController.SetTime(timeFormatted);
             }
             else
             {
                 challengeActive = false;
-                // end challenge
+                textController.SetTime("Time's up!");
+            }
+            if (timerButton.gameObject.activeSelf)
+            {
+                Debug.LogError("timerButton reactivated unexpectedly!");
             }
         }
     }
@@ -47,6 +55,7 @@ public class MainMenuController : MonoBehaviour
 
     public void StartChallenge()
     {
+        timerButton.onClick.RemoveListener(StartChallenge); 
         timerButton.gameObject.SetActive(false);
         challengeActive = true;
         timeLeft = timerDuration;

@@ -11,6 +11,10 @@ public class FeedbackController : MonoBehaviour
         {
             feedbackText.text = "feedback Initialized!";
         }
+        if (timeText != null)
+        {
+            timeText.text = "game start!";
+        }
     }
 
     void Update()

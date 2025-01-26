@@ -26,7 +26,15 @@ public class Outliner : MonoBehaviour
     private Transform highlight;
     private Transform selection;
     private RaycastHit raycastHit;
-   public FeedbackController feedbackController;
+    public FeedbackController feedbackController;
+    public GameObject penguin;
+    public GameObject selectedIce;
+    public Vector3 selectedIce_ogPosition;
+
+   void Start()
+    {
+        penguin = GameObject.Find("penguin_head");
+    }
 
     void Update()
     {
@@ -40,7 +48,7 @@ public class Outliner : MonoBehaviour
         if (!EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out raycastHit)) // NEED EVENT SYSTEM
         {
             highlight = raycastHit.transform;
-            if ((highlight.name == "ice") && (highlight != selection))
+            if ((highlight.name == "ice" || highlight.CompareTag("slot")) && (highlight != selection))
             {
                 feedbackController.SetFeedbackText("Highlighted: " + highlight.tag);
                 if (highlight.gameObject.GetComponent<Outline>() != null)
@@ -52,7 +60,7 @@ public class Outliner : MonoBehaviour
                     Outline outline = highlight.gameObject.AddComponent<Outline>();
                     outline.enabled = true;
                     highlight.gameObject.GetComponent<Outline>().OutlineColor = Color.magenta;
-                    highlight.gameObject.GetComponent<Outline>().OutlineWidth = 7.0f;
+                    highlight.gameObject.GetComponent<Outline>().OutlineWidth = 20.0f;
                 }
             }
             else
@@ -64,15 +72,30 @@ public class Outliner : MonoBehaviour
         // Selection
         if (Input.GetMouseButtonDown(0))
         {
-            if (highlight)
+            if (highlight && (highlight.tag != "slot"))
             {
                 if (selection != null)
                 {
                     selection.gameObject.GetComponent<Outline>().enabled = false;
                 }
                 selection = raycastHit.transform;
+                selectedIce = selection.gameObject;
+                selectedIce_ogPosition = selectedIce.transform.position;
+                feedbackController.SetFeedbackText("Selected: " + selection.tag);
                 selection.gameObject.GetComponent<Outline>().enabled = true;
                 highlight = null;
+                if (penguin != null)
+                {
+                    // Move the ice on top of the penguin
+                    Vector3 penguinPosition = penguin.transform.position;
+
+                    // Adjust the position slightly above the penguin
+                    Vector3 newPosition = new Vector3(penguinPosition.x, penguinPosition.y + 1.0f, penguinPosition.z);
+
+                    selection.position = newPosition;
+
+                    Debug.Log("Ice moved on top of the penguin.");
+                }
             }
             else
             {
@@ -80,6 +103,7 @@ public class Outliner : MonoBehaviour
                 {
                     selection.gameObject.GetComponent<Outline>().enabled = false;
                     selection = null;
+                    selectedIce = null;
                 }
             }
         }
