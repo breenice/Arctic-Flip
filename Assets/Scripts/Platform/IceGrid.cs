@@ -1,12 +1,13 @@
 using UnityEngine;
 public class IceGrid : MonoBehaviour    
 {
-    private Outliner iceController;
+    public Outliner iceController;
     private FeedbackController textController;
     public Slot[] slots;
     public Slot targetSlot;
     private void Start()
     {
+        Debug.Log("IceGrid started.");
         GameObject[] slotObjects = GameObject.FindGameObjectsWithTag("slot");
         slots = new Slot[slotObjects.Length];
 
@@ -22,48 +23,33 @@ public class IceGrid : MonoBehaviour
 
             slots[i] = slotComponent;
         }
+        Debug.Log("IceGrid started2222");
     }
 
     public void Update()
     {
-        getTargetSlot();
-    }
-
-    private void getTargetSlot()
-    {
-        foreach (Slot slot in slots)
+        if (Input.GetMouseButtonUp(0))
         {
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-            Collider2D collider = slot.GetComponent<Collider2D>();
-            if (collider != null && collider.OverlapPoint(mousePos))
-            {
-                targetSlot = slot;
-                break;
-            }
+            Debug.Log("Mouse button released.");
+            IcePlacement();
         }
     }
     
-    private void onMourseUp()
+    private void IcePlacement()
     {
-        textController.SetFeedbackText("Mouse Up!");
-        if (targetSlot != null && targetSlot.isAvailable)
+        Debug.Log(iceController != null);
+        Debug.Log(iceController.selectedIce.name);
+        Debug.Log(iceController.selectedSlot.name);
+        if ((iceController.selectedIce != null) && (iceController.selectedSlot != null))
         {
-            textController.SetFeedbackText("Placing ice...");
-            if (iceController.selectedIce != null)
-            {
-                textController.SetFeedbackText("ice picked...");
-                iceController.selectedIce.transform.position = targetSlot.transform.position;
-                targetSlot.PlaceIce(iceController.selectedIce);
-                textController.SetFeedbackText("ice placed!");
-            }
-        }
-        else
-        {
-            if (iceController.selectedIce != null)
-            { 
-                iceController.selectedIce.transform.position = iceController.selectedIce_ogPosition;
-            }
+            Vector3 slotPosition = iceController.selectedSlot.transform.position;
+            Vector3 og_icePosition = iceController.selectedIce.transform.position;
+
+            Vector3 newPosition = new Vector3(slotPosition.x, slotPosition.y + 0.5f, slotPosition.z);
+
+            iceController.selectedIce.transform.position = newPosition;
+
+            Debug.Log("Ice to slot.");
         }
     }
 }
