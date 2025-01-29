@@ -8,6 +8,7 @@ TagManager:
   - 1/1
   - 1/2
   - slot
+  - evil_slot
   layers:
   - Default
   - TransparentFX
