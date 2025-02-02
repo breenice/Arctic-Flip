@@ -10,6 +10,7 @@ public class MainMenuController : MonoBehaviour
     public float timerDuration = 120f; // 2 minutes
     public float timeLeft;
     public bool challengeActive = false;
+    public IceGrid iceGrid;
     public void Start()
     {
         if (startButton == null)
@@ -59,5 +60,12 @@ public class MainMenuController : MonoBehaviour
         timerButton.gameObject.SetActive(false);
         challengeActive = true;
         timeLeft = timerDuration;
+        generateProblem();
+    }
+
+    void generateProblem()
+    {
+        // generate ices for prob
+        iceGrid.PlaceWizardIce();
     }
 }

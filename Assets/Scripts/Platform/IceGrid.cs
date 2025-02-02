@@ -1,29 +1,23 @@
 using UnityEngine;
+using System;
+using System.Collections.Generic;
 public class IceGrid : MonoBehaviour    
 {
     public Outliner iceController;
     private FeedbackController textController;
-    public Slot[] slots;
+    public GameObject[] slots = new GameObject[3];
     public Slot targetSlot;
+    public GameObject[] wizardSlots = new GameObject[3];
+    public GameObject[] iceStorage = new GameObject[3];
+    public HashSet<int> usableIce = new HashSet<int>();
+
     private void Start()
     {
         Debug.Log("IceGrid started.");
-        GameObject[] slotObjects = GameObject.FindGameObjectsWithTag("slot");
-        slots = new Slot[slotObjects.Length];
-
-        for (int i = 0; i < slotObjects.Length; i++)
+        for (int i = 0; i < iceStorage.Length; i++)
         {
-            Slot slotComponent = slotObjects[i].GetComponent<Slot>();
-
-            if (slotComponent == null)
-            {
-                // If the GameObject doesn't have a Slot component, add it dynamically
-                slotComponent = slotObjects[i].AddComponent<Slot>();
-            }
-
-            slots[i] = slotComponent;
+            usableIce.Add(i); // tells me which ice i haven't taken from storage yet
         }
-        Debug.Log("IceGrid started2222");
     }
 
     public void Update()
@@ -51,5 +45,27 @@ public class IceGrid : MonoBehaviour
 
             Debug.Log("Ice to slot.");
         }
+    }
+
+    public void PlaceWizardIce()
+    {
+        System.Random random = new System.Random();
+        int numIce = random.Next(1, 3);
+        for (int i = 0; i < wizardSlots.Length; i++)
+        {
+            Vector3 oldPosition = wizardSlots[i].transform.position;
+            Vector3 newPosition = new Vector3(oldPosition.x, oldPosition.y + 0.5f, oldPosition.z);
+            int newIceIdx = GetRandomIce();
+            GameObject newIce = iceStorage[newIceIdx];
+            newIce.transform.position = newPosition;
+        }
+    }
+
+    private int GetRandomIce()
+    {
+        System.Random random = new System.Random();
+        int numIce = random.Next(1, usableIce.Count);
+        usableIce.Remove(numIce);
+        return numIce;
     }
 }
