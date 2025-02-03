@@ -28,7 +28,7 @@ public class Outliner : MonoBehaviour
     private RaycastHit raycastHit;
     public FeedbackController feedbackController;
     public GameObject penguin;
-    public GameObject selectedIce;
+    public GameObject selectedIce = null;
     public GameObject selectedSlot = null;
     public Vector3 selectedIce_ogPosition;
 

@@ -17,11 +17,11 @@ public class MainMenuController : MonoBehaviour
         {
             startButton = GameObject.Find("Start").GetComponent<Button>();
         }
+        startButton.onClick.AddListener(LoadScene); 
         if (timerButton == null)
         {
             timerButton = GameObject.Find("start_timer").GetComponent<Button>();
         }
-        startButton.onClick.AddListener(LoadScene); 
         timerButton.onClick.AddListener(StartChallenge); 
     }
     public void Update()
@@ -42,6 +42,7 @@ public class MainMenuController : MonoBehaviour
             {
                 challengeActive = false;
                 textController.SetTime("Time's up!");
+                iceGrid.checkAnswer();
             }
             if (timerButton.gameObject.activeSelf)
             {
@@ -60,11 +61,6 @@ public class MainMenuController : MonoBehaviour
         timerButton.gameObject.SetActive(false);
         challengeActive = true;
         timeLeft = timerDuration;
-        generateProblem();
-    }
-
-    void generateProblem()
-    {
         // generate ices for prob
         iceGrid.PlaceWizardIce();
     }
