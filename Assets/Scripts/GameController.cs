@@ -44,10 +44,6 @@ public class MainMenuController : MonoBehaviour
                 textController.SetTime("Time's up!");
                 iceGrid.checkAnswer();
             }
-            if (timerButton.gameObject.activeSelf)
-            {
-                Debug.LogError("timerButton reactivated unexpectedly!");
-            }
         }
     }
     public void LoadScene()
@@ -60,8 +56,8 @@ public class MainMenuController : MonoBehaviour
         timerButton.onClick.RemoveListener(StartChallenge); 
         timerButton.gameObject.SetActive(false);
         challengeActive = true;
-        timeLeft = timerDuration;
+        timeLeft = timerDuration + 0.1f;
         // generate ices for prob
-        iceGrid.PlaceWizardIce();
+        iceGrid.PlaceIce();
     }
 }
