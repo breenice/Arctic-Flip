@@ -6,6 +6,7 @@ public class IceGrid : MonoBehaviour
     public Outliner iceController;
     public FeedbackController textController;
     public GameObject[] slots = new GameObject[3];
+    public GameObject[] playerAnswer = new GameObject[3];
     public Slot targetSlot;
     public GameObject[] wizardSlots = new GameObject[3];
     public List<GameObject> iceStorage = new List<GameObject>();
@@ -14,7 +15,10 @@ public class IceGrid : MonoBehaviour
     private System.Random random = new System.Random();
     float wizardTotal = 0.0f;
     float playerTotal = 0.0f;
+
+    //script
     public QuestionFetcher questionFetcher;
+
 
     private void Start()
     {
@@ -160,9 +164,18 @@ public class IceGrid : MonoBehaviour
         return 0.0f; // error handling prob
     }
 
+    void sumPlayerAnswer()
+    {
+        
+        for (int i = 0; i < playerAnswer.Length; i++)
+        {
+            playerTotal += getTagFraction(playerAnswer[i].tag);
+        }
+    }
+
     public void checkAnswer()
     {
-
+        sumPlayerAnswer();
         if (wizardTotal == playerTotal)
         {
             textController.SetFeedbackText("Correct!");

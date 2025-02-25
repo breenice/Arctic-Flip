@@ -86,19 +86,28 @@ public class Outliner : MonoBehaviour
         // Selection
         if (Input.GetKey(KeyCode.X))
         {
+            if (lookObj != null)
+            {
+                lookObj.GetComponent<Outline>().enabled = false;
+            }
             if (lookObj)
             {
-                if (lookObj != null)
-                {
-                    lookObj.GetComponent<Outline>().enabled = false;
-                }
                 pickedObj = lookObj;
                 if (pickedObj.name == "ice"){ 
-                    // GameObject[]slotsFilled = iceGrid.slotsFilled;
-                    // if (slotsFilled.Contains(pickedObj))
-                    // {
-                    //     slotsFilled[slotsFilled.ToList().IndexOf(pickedObj)] = null;
-                    // }
+
+                    // if taken from sea
+                    GameObject[]slotsFilled = iceGrid.slotsFilled;
+                    if (slotsFilled.Contains(pickedObj))
+                    {
+                        slotsFilled[slotsFilled.ToList().IndexOf(pickedObj)] = null;
+                    }
+
+                    //if taken from player slots
+                    GameObject[]playerAnswer = iceGrid.playerAnswer;
+                    if (playerAnswer.Contains(pickedObj))
+                    {
+                        playerAnswer[playerAnswer.ToList().IndexOf(pickedObj)] = null;
+                    }
                     selectedIce = pickedObj; 
                     selectedIce_ogPosition = selectedIce.transform.position;
 
@@ -119,6 +128,12 @@ public class Outliner : MonoBehaviour
                 }
                 if (pickedObj.CompareTag("slot") && selectedIce != null)
                 { 
+                    GameObject[]slots = iceGrid.slots;
+                    GameObject[] playerAnswer = iceGrid.playerAnswer;
+                    if (slots.Contains(pickedObj))
+                    {
+                        playerAnswer[slots.ToList().IndexOf(pickedObj)] = selectedIce;
+                    }
                     selectedSlot = pickedObj.gameObject; Debug.Log("Selected slot: " + selectedSlot.name); 
                     Vector3 newPosition = selectedSlot.transform.position;
                     selectedIce.transform.position = newPosition;
