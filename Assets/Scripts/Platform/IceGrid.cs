@@ -10,6 +10,7 @@ public class IceGrid : MonoBehaviour
     public GameObject[] wizardSlots = new GameObject[3];
     public List<GameObject> iceStorage = new List<GameObject>();
     public GameObject[] usableIceSlots = new GameObject[8];
+    public GameObject[] slotsFilled = new GameObject[8];
     private System.Random random = new System.Random();
     float wizardTotal = 0.0f;
     float playerTotal = 0.0f;

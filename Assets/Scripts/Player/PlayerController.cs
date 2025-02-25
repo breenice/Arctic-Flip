@@ -5,8 +5,10 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rb;
     public float moveSpeed = 5f; // speed
     public Vector3 moveDirection;
-    private Ray playerRay;
+
+    public Raycaster raycaster;
     public LayerMask layerMask;
+
 
     void Start()
     {
@@ -34,23 +36,9 @@ public class PlayerController : MonoBehaviour
             Quaternion toRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
         }
-        castRay();
-    }
 
-    void castRay()
-    {
-        Vector3 inFront = transform.forward ; // look a few "steps" in front of penguin
-        playerRay = new Ray(transform.position + inFront, (inFront + Vector3.down * 2f).normalized); // look at the ground
-        Debug.DrawRay(playerRay.origin, playerRay.direction * 10, Color.red);
-    }
-
-    RaycastHit? getRayHit()
-    {
-        if(Physics.Raycast(playerRay, out RaycastHit hit, 20f, layerMask))
-        {
-            Debug.Log(hit.transform.name);
-            return hit;
-        }
-        return null; // no object hit
+        Vector3 start = transform.position + transform.forward * 1.5f;
+        Vector3 direction = (Vector3.down + transform.forward * 0.3f).normalized;
+        raycaster.CastRay(start, direction);
     }
 }

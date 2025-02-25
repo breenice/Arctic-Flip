@@ -18,6 +18,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -26,79 +27,178 @@ public class Outliner : MonoBehaviour
     private Transform highlight;
     private Transform selection;
     private RaycastHit raycastHit;
-    public FeedbackController feedbackController;
     public GameObject penguin;
-    public GameObject selectedIce = null;
+    public GameObject selectedIce;
     public GameObject selectedSlot = null;
     public Vector3 selectedIce_ogPosition;
-    public float detectionDistance = 2f; // at ground
-    public float lookAheadDistance = 2f; // lookahead distance
-    public PlayerController playerController;
-    private string[] validTags = { "1/1", "1/2", "1/3", "1/4", "1/5", "slot" };
-    private RaycastHit saveHit;
+
+    public Raycaster raycaster;
+    public string[] selectableTags = { "ice", "slot", "1/1", "1/2", "1/3", "1/4", "1/5" };
+
+    // move mode
+    public GameObject lookObj; // player looking at object
+    public GameObject pickedObj; // object picked by player (on x?)
+
+    //script
+    public FeedbackController feedbackController;
+    public IceGrid iceGrid;
 
    void Start()
     {
         penguin = GameObject.Find("penguin_head");
     }
+
     void checkHighlight()
     {
-        // Highlight
+        if (lookObj != null)
+        {
+            lookObj.GetComponent<Outline>().enabled = false;
+            lookObj = null;
+        }
+        //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //if (!EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out raycastHit)) //Make sure you have EventSystem in the hierarchy before using EventSystem
+        lookObj = raycaster.getLookObject();
+        Debug.Log("new: "+lookObj.name);
+        if(lookObj)
+        {
+            if (selectableTags.Contains(lookObj.tag) && (lookObj != pickedObj))
+            {
+                if (lookObj.GetComponent<Outline>() != null)
+                {
+                    lookObj.GetComponent<Outline>().enabled = true;
+                }
+                else
+                {
+                    Outline outline = lookObj.AddComponent<Outline>();
+                    outline.enabled = true;
+                    lookObj.GetComponent<Outline>().OutlineColor = Color.magenta;
+                    lookObj.GetComponent<Outline>().OutlineWidth = 7.0f;
+                }
+            }
+            else
+            {
+                lookObj = null;
+            }
+        }
+    }
+    void checkSelection()
+    {
+        // Selection
+        if (Input.GetKey(KeyCode.X))
+        {
+            if (lookObj)
+            {
+                if (lookObj != null)
+                {
+                    lookObj.GetComponent<Outline>().enabled = false;
+                }
+                pickedObj = lookObj;
+                if (pickedObj.name == "ice"){ 
+                    // GameObject[]slotsFilled = iceGrid.slotsFilled;
+                    // if (slotsFilled.Contains(pickedObj))
+                    // {
+                    //     slotsFilled[slotsFilled.ToList().IndexOf(pickedObj)] = null;
+                    // }
+                    selectedIce = pickedObj; 
+                    selectedIce_ogPosition = selectedIce.transform.position;
+
+                    if (penguin != null)
+                    {
+                        // Move the ice on top of the penguin
+                        Vector3 penguinPosition = penguin.transform.position;
+
+                        // Adjust the position slightly above the penguin
+                        Vector3 newPosition = new Vector3(penguinPosition.x, penguinPosition.y + 2.0f, penguinPosition.z);
+
+                        pickedObj.transform.position = newPosition;
+                        pickedObj.transform.SetParent(penguin.transform);
+
+                        //Debug.Log("Ice moved on top of the penguin.");
+                    }
+                    Debug.Log("Selected ice: " + selectedIce.name); 
+                }
+                if (pickedObj.CompareTag("slot") && selectedIce != null)
+                { 
+                    selectedSlot = pickedObj.gameObject; Debug.Log("Selected slot: " + selectedSlot.name); 
+                    Vector3 newPosition = selectedSlot.transform.position;
+                    selectedIce.transform.position = newPosition;
+                    selectedIce.transform.SetParent(null);
+                }
+                if(selectedSlot == null){Debug.Log("no slot");}
+
+                feedbackController.SetFeedbackText("Selected: " + pickedObj.tag);
+                pickedObj.gameObject.GetComponent<Outline>().enabled = true;
+                lookObj = null;
+            }
+            else
+            {
+                if (selection)
+                {
+                    selection.gameObject.GetComponent<Outline>().enabled = false;
+                    selection = null;
+                    selectedIce = null;
+                }
+            }
+        }
+    }
+
+    void checkDeselect()
+    {
+        if (Input.GetKeyDown(KeyCode.X) && (lookObj == null))
+        {
+            selectedIce.transform.SetParent(null);
+
+            GameObject[] slots = iceGrid.usableIceSlots;
+            GameObject[] slotsFilled = iceGrid.slotsFilled;
+            for (int i = 0; i < slots.Length; i++)
+            {
+                // check if occupied
+                if (slotsFilled[i] == null)
+                {
+                    Vector3 newPosition = slots[i].transform.position;
+                    selectedIce.transform.position = newPosition;
+                    slotsFilled[i] = selectedIce;
+                    selectedIce = null;
+                    break;
+                }
+            }
+        }
+    }
+    void pointAndClickHighlight()
+    {
         if (highlight != null)
         {
             highlight.gameObject.GetComponent<Outline>().enabled = false;
             highlight = null;
         }
-        else
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (!EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out raycastHit)) // MUST HAVE EventSystem in inspector
         {
-            highlight = playerController.getRayHit().transform;
-            if (highlight.gameObject.GetComponent<Outline>() != null)
+            highlight = raycastHit.transform;
+            if (selectableTags.Contains(highlight.tag) && (highlight != selection))
             {
-                highlight.gameObject.GetComponent<Outline>().enabled = true;
+                if (highlight.gameObject.GetComponent<Outline>() != null)
+                {
+                    highlight.gameObject.GetComponent<Outline>().enabled = true;
+                }
+                else
+                {
+                    Outline outline = highlight.gameObject.AddComponent<Outline>();
+                    outline.enabled = true;
+                    highlight.gameObject.GetComponent<Outline>().OutlineColor = Color.magenta;
+                    highlight.gameObject.GetComponent<Outline>().OutlineWidth = 7.0f;
+                }
             }
             else
             {
-                Outline outline = highlight.gameObject.AddComponent<Outline>();
-                outline.enabled = true;
-                highlight.gameObject.GetComponent<Outline>().OutlineColor = Color.magenta;
-                highlight.gameObject.GetComponent<Outline>().OutlineWidth = 15.0f;
+                highlight = null;
             }
         }
-
-        /** point and click game mode
-
-        Vector3 frontPosition = playerController.transform.position + transform.forward * lookAheadDistance;
-        if (!EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(saveHit.point, out raycastHit)) // NEED EVENT SYSTEM
-        {
-             highlight = raycastHit.transform;
-             if ((highlight.name == "ice" || highlight.CompareTag("slot")) && (highlight != selection))
-             {
-                 //Debug.Log("Highlighted: " + highlight.tag);
-                 //Debug.Log(feedbackController != null);
-                 feedbackController.SetFeedbackText("Highlighted: " + highlight.tag);
-                 if (highlight.gameObject.GetComponent<Outline>() != null)
-                 {
-                     highlight.gameObject.GetComponent<Outline>().enabled = true;
-                 }
-                 else
-                 {
-                     Outline outline = highlight.gameObject.AddComponent<Outline>();
-                     outline.enabled = true;
-                     highlight.gameObject.GetComponent<Outline>().OutlineColor = Color.magenta;
-                     highlight.gameObject.GetComponent<Outline>().OutlineWidth = 20.0f;
-                 }
-             }
-             else
-             {
-                 highlight = null;
-             }
-         }
-    **/
     }
-    void checkSelection()
+    void pointAndClickSelection()
     {
         // Selection
-        if (Input.GetKeyUp(KeyCode.X))
+        if (Input.GetMouseButtonDown(0))
         {
             if (highlight)
             {
@@ -113,8 +213,10 @@ public class Outliner : MonoBehaviour
 
                 if (penguin != null)
                 {
+                    // Move the ice on top of the penguin
                     Vector3 penguinPosition = penguin.transform.position;
 
+                    // Adjust the position slightly above the penguin
                     Vector3 newPosition = new Vector3(penguinPosition.x, penguinPosition.y + 1.0f, penguinPosition.z);
 
                     selection.position = newPosition;
@@ -144,6 +246,7 @@ public class Outliner : MonoBehaviour
 
     void Update()
     {
+        checkDeselect();
         checkHighlight();
         checkSelection();
     }
