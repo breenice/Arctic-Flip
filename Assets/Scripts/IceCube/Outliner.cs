@@ -55,12 +55,11 @@ public class Outliner : MonoBehaviour
             lookObj.GetComponent<Outline>().enabled = false;
             lookObj = null;
         }
-        //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        //if (!EventSystem.current.IsPointerOverGameObject() && Physics.Raycast(ray, out raycastHit)) //Make sure you have EventSystem in the hierarchy before using EventSystem
         lookObj = raycaster.getLookObject();
         Debug.Log("new: "+lookObj.name);
         if(lookObj)
         {
+            if(lookObj.name == "ice") {feedbackController.SetPlayerTalk(lookObj.tag);}
             if (selectableTags.Contains(lookObj.tag) && (lookObj != pickedObj))
             {
                 if (lookObj.GetComponent<Outline>() != null)
@@ -94,7 +93,6 @@ public class Outliner : MonoBehaviour
             {
                 pickedObj = lookObj;
                 if (pickedObj.name == "ice"){ 
-
                     // if taken from sea
                     GameObject[]slotsFilled = iceGrid.slotsFilled;
                     if (slotsFilled.Contains(pickedObj))
