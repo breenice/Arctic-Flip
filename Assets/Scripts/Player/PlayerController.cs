@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
     public Vector3 moveDirection;
 
     public Raycaster raycaster;
-    public LayerMask layerMask;
+    public LayerMask layerMask; 
 
 
     void Start()

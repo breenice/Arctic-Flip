@@ -15,6 +15,7 @@ public class IceGrid : MonoBehaviour
     private System.Random random = new System.Random();
     float wizardTotal = 0.0f;
     float playerTotal = 0.0f;
+    public int level;
 
     //script
     public QuestionFetcher questionFetcher;
@@ -58,8 +59,9 @@ public class IceGrid : MonoBehaviour
 
     public void PlaceIce()
     {
+        //set level
         int questionId = questionFetcher.GetNextQuestion("Fraction", 1);
-        textController.SetFeedbackText(questionId.ToString());
+        // textController.SetFeedbackText(questionId.ToString());
         int[] problemSet = questionFetcher.GetProblemSet(questionId);
         PlaceWizardIce(problemSet);
         int[] solutionSet = questionFetcher.GetSolutionSet(questionId);
@@ -164,27 +166,33 @@ public class IceGrid : MonoBehaviour
         return 0.0f; // error handling prob
     }
 
-    void sumPlayerAnswer()
+    public bool checkAnswer()
     {
-        
-        for (int i = 0; i < playerAnswer.Length; i++)
-        {
-            playerTotal += getTagFraction(playerAnswer[i].tag);
+        Debug.Log("checking answer");
+        // sums player answer
+        if(playerAnswer != null){
+            for (int i = 0; i < playerAnswer.Length; i++)
+            {
+                if (playerAnswer[i] != null){
+                    playerTotal += getTagFraction(playerAnswer[i].tag);
+                    Debug.Log("total:"+playerTotal);
+                }
+            }
         }
-    }
+        Debug.Log("wizard total: "+ wizardTotal);
 
-    public void checkAnswer()
-    {
-        sumPlayerAnswer();
+        // checking
         if (wizardTotal == playerTotal)
         {
             textController.SetFeedbackText("Correct!");
             Debug.Log(wizardTotal);
             Debug.Log(playerTotal);
+            return true;
         }
         else
         {
             textController.SetFeedbackText("Incorrect.");
+            return false;
         }
     }
 }

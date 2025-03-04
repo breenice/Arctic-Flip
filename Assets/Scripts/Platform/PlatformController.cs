@@ -1,34 +1,37 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlatformController : MonoBehaviour
 {
-    public float flipSpeed = 2f;
     private bool isFlipping = false;
     public GameObject platformObject;
+    public GameObject floor;
 
-    void Update()
+    public void StartFlip()
     {
-        if (isFlipping)
+        if (!isFlipping)
         {
-            FlipPlatform();
+            Debug.Log("Flipping platform");
+            isFlipping = true;
+            StartCoroutine(FlipPlatform());
         }
     }
 
-    public void StartFlipping()
-    {
-        isFlipping = true;
-    }
+    private IEnumerator FlipPlatform()
+    {   
+        float totalRotation = 0f;
 
-    private void FlipPlatform()
-    {
-        Quaternion targetRotation = Quaternion.Euler(180f, 0f, 0f); // Flips upside down
-        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * flipSpeed);
-
-        // Stop flipping once close to target
-        if (Quaternion.Angle(transform.rotation, targetRotation) < 1f)
+        floor.GetComponent<MeshCollider>().enabled = false; // remove floor so player can "fall" into water
+        while (totalRotation < 180f)
         {
-            transform.rotation = targetRotation;
-            isFlipping = false;
+            Debug.Log("Flipping platform3");
+            float step = 80f * Time.deltaTime; // speed
+            platformObject.transform.Rotate(Vector3.up, step);
+            totalRotation += step;
+            yield return null;
         }
+        Debug.Log("Flipping platform4");
+        // platformObject.transform.rotation = Quaternion.Euler(0f, 0f, 360f); // fit to exactly 180 degrees
+        isFlipping = false;
     }
 }
