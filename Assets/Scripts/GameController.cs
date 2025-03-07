@@ -14,6 +14,9 @@ public class MainMenuController : MonoBehaviour
     public float timeLeft;
     public bool challengeActive = false;
     public IceGrid iceGrid;
+    private bool enableReset = false;  
+
+    // script
     public PlayerInfo playerInfo;
     public PlayerController playerController;
     public PlatformController platformController;
@@ -49,7 +52,6 @@ public class MainMenuController : MonoBehaviour
             else
             {
                 challengeActive = false;
-                timerButton.gameObject.SetActive(true);
                 bool correct = iceGrid.checkAnswer();
                 Debug.Log("incorrect");
                 if (correct) 
@@ -63,6 +65,9 @@ public class MainMenuController : MonoBehaviour
                     platformController.StartFlip();
                     textController.SetTime("Time's up! Incorrect!");
                 }
+                timerButton.gameObject.SetActive(true);
+                enableReset = true;
+                timerButton.onClick.AddListener(StartChallenge); 
                 timerButton.GetComponentInChildren<TextMeshProUGUI>().text = "Play Again?";
                 Debug.Log(playerInfo.username.text);
             }
@@ -75,6 +80,13 @@ public class MainMenuController : MonoBehaviour
 
     public void StartChallenge()
     {
+        platformController.resetPlatform(enableReset);
+        iceGrid.resetIceAssets(enableReset);
+        textController.SetTime("Ready");
+        System.Threading.Thread.Sleep(1);
+        textController.SetTime("Set...");
+        System.Threading.Thread.Sleep(1);
+        textController.SetTime("Go!");
         timerButton.onClick.RemoveListener(StartChallenge); 
         timerButton.gameObject.SetActive(false);
         challengeActive = true;

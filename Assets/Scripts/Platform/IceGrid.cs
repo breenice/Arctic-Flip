@@ -1,6 +1,8 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+
 public class IceGrid : MonoBehaviour    
 {
     public Outliner iceController;
@@ -10,15 +12,18 @@ public class IceGrid : MonoBehaviour
     public Slot targetSlot;
     public GameObject[] wizardSlots = new GameObject[3];
     public List<GameObject> iceStorage = new List<GameObject>();
+    public List<GameObject> usedIce = new List<GameObject>();
     public GameObject[] usableIceSlots = new GameObject[8];
     public GameObject[] slotsFilled = new GameObject[8];
     private System.Random random = new System.Random();
     float wizardTotal = 0.0f;
     float playerTotal = 0.0f;
     public int level;
+    public GameObject iceQueue;
 
     //script
     public QuestionFetcher questionFetcher;
+    public MainMenuController mainMenuController;
 
 
     private void Start()
@@ -32,6 +37,33 @@ public class IceGrid : MonoBehaviour
         {
             Debug.Log("Mouse button released.");
             // IcePlacement();
+        }
+    }
+    List<GameObject> GetAllChildCubes(Transform parent)
+    {
+        List<GameObject> cubeList = new List<GameObject>();
+
+        foreach (Transform child in parent)
+        {
+            if (child.name.ToLower().Contains("ice"))
+            {
+                cubeList.Add(child.gameObject);
+            }
+            // recursively search for actual ice (bc weird prefab)
+            cubeList.AddRange(GetAllChildCubes(child));
+        }
+        return cubeList;
+    }
+
+    public void resetIceAssets(bool enableReset)
+    {
+        if (!enableReset) return;
+        Debug.Log("ice queue: "+iceQueue.transform.position);
+        for (int i = 0; i < usedIce.Count; i++)
+        {
+            iceStorage.Add(usedIce[i]);
+            usedIce[i].transform.position = iceQueue.transform.position;
+            usedIce.RemoveAt(i);
         }
     }
 
@@ -60,8 +92,10 @@ public class IceGrid : MonoBehaviour
     public void PlaceIce()
     {
         //set level
+        Debug.Log("placing ice for question!!");
         int questionId = questionFetcher.GetNextQuestion("Fraction", 1);
         // textController.SetFeedbackText(questionId.ToString());
+        Debug.Log("found question id: " + questionId);
         int[] problemSet = questionFetcher.GetProblemSet(questionId);
         PlaceWizardIce(problemSet);
         int[] solutionSet = questionFetcher.GetSolutionSet(questionId);
@@ -143,6 +177,7 @@ public class IceGrid : MonoBehaviour
             if (iceStorage[i].tag.Equals(tag))
             {
                 iceStorage.RemoveAt(i);
+                usedIce.Add(pick);
                 Debug.Log("ice picked: " + pick.name);
                 return pick;
             }
