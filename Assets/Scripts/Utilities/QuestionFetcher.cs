@@ -2,6 +2,7 @@ using SQLite;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class QuestionFetcher : MonoBehaviour
 {
@@ -19,7 +20,7 @@ public class QuestionFetcher : MonoBehaviour
         Debug.Log("Connected to SQLite database at: " + dbPath);
     }
     public void CreateDB(){
-        // Debug.Log("creating db");
+        // Debug.Log("creating question db");
 		connection.DropTable<QuestionSet> ();
 		connection.CreateTable<QuestionSet> ();
         
@@ -36,8 +37,13 @@ public class QuestionFetcher : MonoBehaviour
                 Seen = 0
 			},
             new QuestionSet{
-                Type = "Fraction",
+				Type = "Fraction",
                 Difficulty = 1,
+                Seen = 0
+			},
+            new QuestionSet{
+                Type = "Fraction",
+                Difficulty = 2,
                 Seen = 0
             },
             new QuestionSet{
@@ -45,13 +51,49 @@ public class QuestionFetcher : MonoBehaviour
                 Difficulty = 2,
                 Seen = 0
             },
+            new QuestionSet{
+                Type = "Fraction",
+                Difficulty = 2,
+                Seen = 0
+            },
+            new QuestionSet{
+                Type = "Fraction",
+                Difficulty = 3,
+                Seen = 0
+            },
+            new QuestionSet{
+                Type = "Fraction",
+                Difficulty = 3,
+                Seen = 0
+            },
         });
         Debug.Log("inserting problems");
         connection.InsertAll (new[]{
             new ProblemSet{
+                Whole = 1,
+                Half = 0,
+                Third = 0,
+                Forth = 0,
+                Fifth = 0
+            },
+            new ProblemSet{
                 Whole = 3,
                 Half = 0,
                 Third = 0,
+                Forth = 0,
+                Fifth = 0
+            },
+            new ProblemSet{
+                Whole = 0,
+                Half = 0,
+                Third = 3,
+                Forth = 0,
+                Fifth = 0
+            },
+            new ProblemSet{
+                Whole = 0,
+                Half = 0,
+                Third = 1,
                 Forth = 0,
                 Fifth = 0
             },
@@ -68,11 +110,54 @@ public class QuestionFetcher : MonoBehaviour
                 Third = 1,
                 Forth = 2,
                 Fifth = 0
+            },
+            new ProblemSet{
+                Whole = 0,
+                Half = 1,
+                Third = 0,
+                Forth = 0,
+                Fifth = 1
             }
 		});
-        Debug.Log("inserting solutions");
-        connection.InsertAll (new[]{new SolutionSet{
-                Whole = 4,
+        // Debug.Log("inserting solutions");
+        connection.InsertAll (new[]{
+            new SolutionSet{ // tutorial
+                Whole = 1,
+                Half = 0,
+                Third = 0,
+                Forth = 0,
+                Fifth = 0
+            },
+            new SolutionSet{
+                Whole = 3,
+                Half = 0,
+                Third = 1,
+                Forth = 0,
+                Fifth = 1
+            },
+            new SolutionSet{
+                Whole = 1,
+                Half = 1,
+                Third = 1,
+                Forth = 1,
+                Fifth = 1
+            },
+            new SolutionSet{
+                Whole = 1,
+                Half = 0,
+                Third = 1,
+                Forth = 2,
+                Fifth = 1
+            },
+            new SolutionSet{
+                Whole = 1,
+                Half = 0,
+                Third = 1,
+                Forth = 2,
+                Fifth = 1
+            },
+            new SolutionSet{
+                Whole = 3,
                 Half = 1,
                 Third = 1,
                 Forth = 0,
@@ -84,13 +169,6 @@ public class QuestionFetcher : MonoBehaviour
                 Third = 1,
                 Forth = 2,
                 Fifth = 1
-            },
-            new SolutionSet{
-                Whole = 1,
-                Half = 1,
-                Third = 1,
-                Forth = 0,
-                Fifth = 0
             }
         });
 	}
@@ -118,15 +196,25 @@ public class QuestionFetcher : MonoBehaviour
 
     public int[] GetProblemSet(int problemId)
     {
-        // Debug.Log("getting problem");
         var problem = connection.Query<ProblemSet>("SELECT * FROM ProblemSet WHERE ProblemID = ?", problemId);
-        if (problem != null)
+
+        // Debug.Log("question seen:");
+        // Debug.Log("problem id: "+problemId);
+        //var debug = connection.Query<QuestionSet>("SELECT * FROM QuestionSet WHERE QuestionID = ?", problemId);
+        //Debug.Log(debug[0].Seen);
+        if (problem.Count > 0)
         {
             // Debug.Log("problem found");
             int[] result = { problem[0].Whole, problem[0].Half, problem[0].Third, problem[0].Forth, problem[0].Fifth };
             return result;
         }
         return null; // no matching problem
+    }
+    public void SetProblemSeen(int problemId)
+    {
+        Debug.Log("updating problem");
+        connection.Execute("UPDATE QuestionSet SET Seen = 1 WHERE QuestionID = ?", problemId);
+        Debug.Log("set seen");
     }
 
     public int[] GetSolutionSet(int solutionId)
@@ -142,7 +230,7 @@ public class QuestionFetcher : MonoBehaviour
     }
 }
 
-// Model Classes for SQLite
+// Model classes for SQLite-Net
 public class QuestionSet
 {
     [PrimaryKey, AutoIncrement]

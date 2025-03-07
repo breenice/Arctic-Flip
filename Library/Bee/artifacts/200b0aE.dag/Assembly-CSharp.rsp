@@ -428,7 +428,14 @@
 "Assets/Scripts/Platform/IceGrid.cs"
 "Assets/Scripts/Platform/PlatformController.cs"
 "Assets/Scripts/Platform/Slot.cs"
+"Assets/Scripts/Player/PlayerController.cs"
+"Assets/Scripts/Player/PlayerInfo.cs"
+"Assets/Scripts/SQLite.cs"
 "Assets/Scripts/Utilities/FeedbackController.cs"
+"Assets/Scripts/Utilities/QuestionFetcher.cs"
+"Assets/Scripts/Utilities/Raycaster.cs"
+"Assets/Scripts/Utilities/SoundFX.cs"
+"Assets/Scripts/Wizard/Problem.cs"
 "Assets/TutorialInfo/Scripts/Readme.cs"
 -langversion:9.0
 /deterministic
