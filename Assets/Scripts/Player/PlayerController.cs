@@ -3,16 +3,23 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody rb;
-    public float moveSpeed = 5f; // speed
-    public Vector3 moveDirection;
+    private float moveSpeed = 5f; // speed
+    private Vector3 moveDirection;
 
     public Raycaster raycaster;
-    public LayerMask layerMask; 
+    public LayerMask layerMask;
+    [SerializeField] private GameObject penguinModel; 
+    private Vector3 ogPosition;
+
+    [SerializeField] private GameObject wizardModel; 
+    private Vector3 wizardogPosition;
 
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        ogPosition = penguinModel.transform.position;
+        wizardogPosition = wizardModel.transform.position;
     }
 
     void Update()
@@ -27,10 +34,8 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(KeyCode.RightArrow)) moveX = -1f;
         
         // jump
-        if (Input.GetKey(KeyCode.Space) && transform.position.y < 2f)
-        {
-            moveY = 1f;
-        }
+        if (Input.GetKey(KeyCode.Space) && transform.position.y < 2f) moveY = 1f;
+
 
         moveDirection = new Vector3(moveX, moveY, moveZ).normalized;
 
@@ -48,5 +53,11 @@ public class PlayerController : MonoBehaviour
         Vector3 start = transform.position + transform.forward * 1.5f;
         Vector3 direction = (Vector3.down + transform.forward * 0.3f).normalized;
         raycaster.CastRay(start, direction);
+    }
+    public void ResetPosition(bool enableReset)
+    {
+        if (!enableReset) return;
+        penguinModel.transform.position = ogPosition;
+        wizardModel.transform.position = wizardogPosition;
     }
 }

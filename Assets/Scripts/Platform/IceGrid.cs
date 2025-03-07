@@ -11,24 +11,27 @@ public class IceGrid : MonoBehaviour
     public GameObject[] playerAnswer = new GameObject[3];
     public Slot targetSlot;
     public GameObject[] wizardSlots = new GameObject[3];
-    public List<GameObject> iceStorage = new List<GameObject>();
+    public GameObject iceStorage;
+     public List<GameObject> allIce = new List<GameObject>();
     public List<GameObject> usedIce = new List<GameObject>();
     public GameObject[] usableIceSlots = new GameObject[8];
     public GameObject[] slotsFilled = new GameObject[8];
     private System.Random random = new System.Random();
     float wizardTotal = 0.0f;
     float playerTotal = 0.0f;
-    public int level;
+    private int currQuestionID;
     public GameObject iceQueue;
 
     //script
     public QuestionFetcher questionFetcher;
     public MainMenuController mainMenuController;
+    public PlayerInfo playerInfo;
 
 
     private void Start()
     {
         Debug.Log("IceGrid started.");
+        allIce = GetAllChildCubes(iceStorage.transform);
     }
 
     public void Update()
@@ -57,13 +60,18 @@ public class IceGrid : MonoBehaviour
 
     public void resetIceAssets(bool enableReset)
     {
+        wizardTotal = 0.0f;
+        playerTotal = 0.0f;
         if (!enableReset) return;
-        Debug.Log("ice queue: "+iceQueue.transform.position);
-        for (int i = 0; i < usedIce.Count; i++)
+        playerInfo.resetWizard();
+        Debug.Log("used ice count: "+usedIce.Count);
+        for (int i = usedIce.Count - 1; i >= 0; i--)
         {
-            iceStorage.Add(usedIce[i]);
+            Debug.Log("used ice moving: "+usedIce[i].name);
+            allIce.Add(usedIce[i]);
             usedIce[i].transform.position = iceQueue.transform.position;
             usedIce.RemoveAt(i);
+            Debug.Log("used movedt: " + i);
         }
     }
 
@@ -89,16 +97,16 @@ public class IceGrid : MonoBehaviour
         }
     }
 
-    public void PlaceIce()
+    public void PlaceIce(int level)
     {
         //set level
         Debug.Log("placing ice for question!!");
-        int questionId = questionFetcher.GetNextQuestion("Fraction", 1);
+        currQuestionID = questionFetcher.GetNextQuestion("Fraction", level);
         // textController.SetFeedbackText(questionId.ToString());
-        Debug.Log("found question id: " + questionId);
-        int[] problemSet = questionFetcher.GetProblemSet(questionId);
+        Debug.Log("found question id: " + currQuestionID);
+        int[] problemSet = questionFetcher.GetProblemSet(currQuestionID);
         PlaceWizardIce(problemSet);
-        int[] solutionSet = questionFetcher.GetSolutionSet(questionId);
+        int[] solutionSet = questionFetcher.GetSolutionSet(currQuestionID);
         PlaceSolutionIce(solutionSet);
     }
 
@@ -155,8 +163,8 @@ public class IceGrid : MonoBehaviour
         {
             Vector3 oldPosition = wizardSlots[i].transform.position;
             Vector3 newPosition = new Vector3(oldPosition.x, oldPosition.y + 0.5f, oldPosition.z);
-            int newIceIdx = random.Next(0, iceStorage.Count);
-            GameObject newIce = iceStorage[newIceIdx];
+            int newIceIdx = random.Next(0, allIce.Count);
+            GameObject newIce = allIce[newIceIdx];
             wizardTotal += getTagFraction(newIce.tag);
             Debug.Log(wizardTotal);
             newIce.transform.position = newPosition;
@@ -166,17 +174,17 @@ public class IceGrid : MonoBehaviour
 
     private GameObject GetMatchingIce(int idx)
     {
-        for (int i=0; i < iceStorage.Count; i++)
+        for (int i=0; i < allIce.Count; i++)
         {
             string tag = "1/"+(idx+1);
             Debug.Log(tag);
-            GameObject pick = iceStorage[i];
+            GameObject pick = allIce[i];
             // could make mult lists per type but seems bloated bc only 3 ice per type
             // Debug.Log("ice stoage tag: " + iceStorage[i].tag);
             // Debug.Log(iceStorage[i].tag.Equals(tag));
-            if (iceStorage[i].tag.Equals(tag))
+            if (allIce[i].tag.Equals(tag))
             {
-                iceStorage.RemoveAt(i);
+                allIce.RemoveAt(i);
                 usedIce.Add(pick);
                 Debug.Log("ice picked: " + pick.name);
                 return pick;
@@ -220,12 +228,15 @@ public class IceGrid : MonoBehaviour
         if (wizardTotal == playerTotal)
         {
             textController.SetFeedbackText("Correct!");
+            questionFetcher.SetProblemSeen(currQuestionID);
+            playerInfo.addPoints();
             Debug.Log(wizardTotal);
             Debug.Log(playerTotal);
             return true;
         }
         else
         {
+            playerInfo.wrongAnswer();
             textController.SetFeedbackText("Incorrect.");
             return false;
         }

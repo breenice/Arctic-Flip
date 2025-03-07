@@ -1,3 +1,4 @@
+using NUnit.Framework.Internal;
 using SQLite;
 using TMPro;
 using UnityEngine;
@@ -6,33 +7,75 @@ using UnityEngine.UI;
 public class PlayerInfo : MonoBehaviour
 {
     private SQLiteConnection connection;
-    public TMP_InputField username;
+    [SerializeField] public TMP_InputField input;
+    [SerializeField] public TextMeshProUGUI username;
 
-    public TextMeshProUGUI points;
-    public TextMeshProUGUI level;
-    public TextMeshProUGUI wins;
+    [SerializeField] private TextMeshProUGUI points;
+    [SerializeField] private TextMeshProUGUI level;
+    [SerializeField] private TextMeshProUGUI wins;
+    [SerializeField] private TextMeshProUGUI wizardTalk;
+    private int playerLevel = 1;
+    private int playerPoints = 0;
     PlayerSet player = null;
+    [SerializeField] private SoundFX soundFX;
     void Start()
     {
+        username.gameObject.SetActive(false);
         var dbPath = Application.persistentDataPath + "/PlayerInfo.db";
         connection = new SQLiteConnection(dbPath);
         CreateDB();
         Debug.Log(connection);
         Debug.Log("Connected to Player SQLite database at: " + dbPath);
     }
+    public void wrongAnswer(){
+        soundFX.PlaySound("wrong");
+        wizardTalk.text = "hehe\n>:)";
+    }
+    public int getLevel(){
+        return playerLevel;
+    }
+    public void addPoints(){
+        wizardTalk.text = "no!\n>:(";
+        soundFX.PlaySound("point");
+        Debug.Log("here");
+        playerPoints += 1 * playerLevel;
+        points.text = "Points : " + playerPoints;
+        switch (playerPoints)
+        {
+            case 2:
+                soundFX.PlaySound("lvlUp");
+                playerLevel = 2;
+                break;
+            case 8:
+                soundFX.PlaySound("lvlUp");
+                playerLevel = 3;
+                break;
+            case 14:
+                soundFX.PlaySound("lvlUp");
+                playerLevel = 4;
+                break;
+        }
+        level.text = "Level : " + playerLevel;
+    }
+    public void resetWizard()
+    {
+        string[] response = {"more!", "huh??", "uh oh\nD:"};
+        wizardTalk.text = response[playerLevel-1];    
+    }
     public void CreateDB(){
-        // Debug.Log("creating db");
-		connection.DropTable<PlayerSet> ();
+        Debug.Log("creating player db");
 		connection.CreateTable<PlayerSet> ();
-        Debug.Log("created player table");
-        Debug.Log("inserting solutions");
+        // Debug.Log("created player table");
 	}
 
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.Return)){
-            Debug.Log("checking now.." + username.text);
-            userExists(username.text);
+            Debug.Log("checking now.." + input.text);
+            // userExists(username.text);
+            input.gameObject.SetActive(false);
+            username.gameObject.SetActive(true);
+            username.text = input.text;
         } 
     }
 
@@ -65,18 +108,6 @@ public class PlayerInfo : MonoBehaviour
     {
         connection.Query<PlayerSet>("UPDATE PlayerSet SET Points = Points + 1, Wins = Wins + 1 WHERE Username = ?", username);
         var sol = connection.Query<PlayerSet>("SELECT * FROM PlayerSet WHERE Username = ?", username);
-        switch (sol[0].Points)
-        {
-            case < 5:
-                level = 1;
-                break;
-            case < 10:
-                level = 2;
-                break;
-            default:
-                level = 3;
-                break;
-        }
         connection.Query<PlayerSet>("UPDATE PlayerSet SET Level = ? WHERE Username = ?", level, username);
         updateUI(username);
     }

@@ -11,6 +11,11 @@ public class PlatformController : MonoBehaviour
     public MainMenuController mainMenuController;
     private bool hasReset = false;
 
+    void Start()
+    {
+        originalOrientation = platformObject.transform.rotation;
+    }
+
     public void StartFlip()
     {
         if (!isFlipping)
@@ -25,8 +30,7 @@ public class PlatformController : MonoBehaviour
     {
         if(!enableReset) return;
         Quaternion currentRotation = platformObject.transform.rotation;
-        Quaternion newRotation = Quaternion.Euler(currentRotation.eulerAngles.x + 180f, currentRotation.eulerAngles.y, currentRotation.eulerAngles.z);
-        platformObject.transform.rotation = newRotation;
+        platformObject.transform.rotation = originalOrientation;
         floor.GetComponent<MeshCollider>().enabled = true;
         hasReset = true;
     }
@@ -44,6 +48,7 @@ public class PlatformController : MonoBehaviour
             yield return null;
         }
         Debug.Log("Flipping platform4");
+       platformObject.transform.rotation = originalOrientation;
         // platformObject.transform.rotation = Quaternion.Euler(0f, 0f, 360f); // fit to exactly 180 degrees
         isFlipping = false;
     }
